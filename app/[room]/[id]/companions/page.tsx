@@ -73,7 +73,7 @@ export default function Companions({ params }: p) {
          </div>
          <HPListClickable
             charData={companions}
-            onClick={(i) => router.push(`/${room}/${id}${cameFromResources && "/resources"}?companion=${i}`)}
+            onClick={(i) => router.push(`/${room}/${id}${cameFromResources ? "/resources" : ""}?companion=${i}`)}
             mainCharID={parseInt(id)}
          />
       </div>
