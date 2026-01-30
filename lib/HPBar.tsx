@@ -64,29 +64,31 @@ interface CompanionSelectorProps {
 function CompanionSelector({ selectedID, companionList, onCharSelect, onCharSceen, onAddChar }: CompanionSelectorProps) {
    if (companionList.length > 1)
       return (
-         <div className="flex gap-2 items-center pb-1">
-            <div className="flex gap-2 flex-1 justify-around">
-               {companionList.map((c) => {
-                  if (selectedID == c.id) {
-                     return (
-                        <button key={c.name} className="text-blue transition-colors">{c.name}</button>
-                     )
-                  } else {
-                     return (
-                        <button key={c.name} onClick={() => onCharSelect(c.id)} className="block text-g4 transition-colors relative">
-                           {c.name}
-                           <div className="absolute bg-lblue left-0 right-0 w-full rounded-3xl">
-                              <div className="rounded-3xl h-1.5 transition-all duration-500 bg-blue"
-                                 style={{ width: `${tempBarW({ name: c.name, current: c.current_hp, max: c.max_hp, temp: c.temp_hp })}%` }}
-                              >
+         <div className="flex gap-2 items-center pb-1 relative top-1">
+            <div className="flex gap-4 flex-1 justify-around overflow-x-scroll no-scrollbar pb-2">
+               {companionList
+                  .sort((a, b) => a.name.localeCompare(b.name))
+                  .map((c) => {
+                     if (selectedID == c.id) {
+                        return (
+                           <button key={c.name} className="text-blue transition-colors min-w-max">{c.name}</button>
+                        )
+                     } else {
+                        return (
+                           <button key={c.name} onClick={() => onCharSelect(c.id)} className="block text-g4 transition-colors relative min-w-max">
+                              {c.name}
+                              <div className="absolute bg-lblue left-0 right-0 w-full rounded-3xl">
+                                 <div className="rounded-3xl h-1.5 transition-all duration-500 bg-blue"
+                                    style={{ width: `${tempBarW({ name: c.name, current: c.current_hp, max: c.max_hp, temp: c.temp_hp })}%` }}
+                                 >
+                                 </div>
                               </div>
-                           </div>
-                        </button>
-                     )
-                  }
-               })}
+                           </button>
+                        )
+                     }
+                  })}
             </div>
-            <button className="bg-blue px-3 rounded-lg hover:bg-dblue transition-colors text-w" onClick={onCharSceen}>more</button>
+            <button className="bg-blue px-3 rounded-lg hover:bg-dblue transition-colors text-w mb-2" onClick={onCharSceen}>more</button>
          </div>
       )
    else

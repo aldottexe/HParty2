@@ -3,17 +3,16 @@
 import HPBar, { PlayerBar } from "@/lib/HPBar";
 import { ResListClickable } from "@/lib/HPList";
 import { PopupManagerContext } from "@/lib/PopupManager";
-import Screen from "@/lib/Screen";
 import StatusBar from "@/lib/StatusBar";
 import { useLiveCharData, useLiveResourceData } from "@/lib/useLiveData";
 import { useRouter, useSearchParams } from "next/navigation";
-import { use, useContext, useState } from "react";
+import { use, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Tables } from "@/database.types";
-import Keypad, { keyPadLayout } from "@/lib/Keypad";
+import { KeypadContext, keyPadLayout } from "@/lib/Keypad";
 
 
-function Editor({ selected }: { selected: Tables<'Resource'> }) {
+function Editor({ selected, onEdit }: { selected: Tables<'Resource'>, onEdit: (id: number) => void }) {
    const [currentHP, setCurrentHP] = useState(selected.current)
 
    async function inc() {
@@ -52,6 +51,10 @@ function Editor({ selected }: { selected: Tables<'Resource'> }) {
                className="bg-blue w-full hover:bg-dblue transition-colors rounded-lg"
                onClick={inc}
             >+</button>
+            <button
+               className="bg-blue hover:bg-dblue transition-colors rounded-lg px-3"
+               onClick={() => onEdit(selected.id)}
+            >...</button>
          </div>
       </div>
    );
@@ -79,43 +82,58 @@ interface p {
 export default function Resources({ params }: p) {
    const router = useRouter();
    const { room, id } = use(params);
-   const searchParams = useSearchParams();
 
    const { charData, synced: charSynced } = useLiveCharData(parseInt(room));
-   const { resData, synced: resSynced } = useLiveResourceData(parseInt(id));
 
    const meAndCompanions = charData.filter((c) => c.id === parseInt(id) || c.parent === parseInt(id));
    const mainCharName = charData.find(c => c.id.toString() === id)?.name;
 
+   const searchParams = useSearchParams();
    const initialSelectedCompanionID = parseInt(searchParams.get("companion") || id);
    const [selectedCompanionID, setSelectedCompanionID] = useState(initialSelectedCompanionID);
 
+   const { resData, synced: resSynced } = useLiveResourceData(selectedCompanionID);
+
    const popupManager = useContext(PopupManagerContext);
 
-   function handleClick(name: string) {
-      switch (name) {
-         case "ADD RESOURCE":
-            break;
-         case "HP":
-            router.push(`/${room}/${id}`)
-      }
-   }
+   const setKeys = useContext(KeypadContext);
+   useEffect(() => {
+      if (setKeys)
+         setKeys({
+            layout: layout,
+            onClick: (name: string) => {
+               switch (name) {
+                  case "ADD RESOURCE":
+                     router.push(`/${room}/${selectedCompanionID}/new-resource`)
+                     break;
+                  case "HP":
+                     router.push(`/${room}/${id}/`)
+               }
+            }
+         });
+   }, [id, room, router, setKeys, selectedCompanionID]);
 
    function edit(id: number) {
       const selectedRes = resData.find(r => r.id === id);
+
+      let destroyPopup: (() => void) | undefined;
+      function onEdit(id: number) {
+         router.push(`/${room}/${id}/edit-resource`);
+         if (destroyPopup)
+            destroyPopup();
+
+      }
+
       if (selectedRes)
-         popupManager?.enqueuePopup((
-            <Editor selected={selectedRes} />
+         destroyPopup = popupManager?.enqueuePopup((
+            <Editor selected={selectedRes} onEdit={onEdit} />
          ),
             { exitOnBackgroundClick: true }
          )
    }
 
-   return <div className="flex flex-col min-h-0 flex-1">
-      <Screen>
-         {popupManager && (
-            <popupManager.PopupViewer />
-         )}
+   return (
+      <div className="flex flex-col min-h-0 flex-1">
          <div className="flex flex-col min-h-0 flex-1 gap-5">
             <StatusBar
                roomNum={room}
@@ -127,15 +145,14 @@ export default function Resources({ params }: p) {
                selectedID={selectedCompanionID}
                charList={meAndCompanions}
                onCharSelect={setSelectedCompanionID}
-               onAddChar={() => { }}
-               onCharScreen={() => { }}
+               onAddChar={() => { router.push(`/${room}/${id}/new-companion`) }}
+               onCharScreen={() => { router.push(`/${room}/${id}/companions?from-resources=true`) }}
             />
             <div>
                <button className="bg-blue text-w rounded-lg px-2">Concentrate</button>
             </div>
             <ResListClickable resData={resData} onClick={edit} />
          </div>
-      </Screen>
-      <Keypad layout={layout} onClick={handleClick} />
-   </div>
+      </div>
+   )
 }

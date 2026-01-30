@@ -68,6 +68,7 @@ export function HPListClickable({ charData, onClick }: { charData: Tables<'Chara
 }
 
 export function ResListClickable({ resData, onClick }: { resData: Tables<'Resource'>[], onClick: (id: number) => void }) {
+   resData = resData.sort((a, b) => a.name > b.name ? 1 : -1);
    return (
       <div className="flex flex-col gap-3">
          {resData.map((r) =>

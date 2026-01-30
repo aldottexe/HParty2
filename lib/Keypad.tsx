@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, createContext } from "react";
+import { useCallback, useEffect, createContext, ReactNode, useState, Dispatch, SetStateAction, useMemo } from "react";
 
 function KeypadButton({ name, onClick, style }: { name: string, onClick: () => void, style: string | undefined }) {
    return (
@@ -13,19 +13,22 @@ function KeypadButton({ name, onClick, style }: { name: string, onClick: () => v
 export type keyPadLayout = { name: string | number, keyPress?: string | number, style?: string }[][];
 
 interface buttonProps {
-   layout: keyPadLayout;
-   onClick: (arg0: string) => void;
+   children: ReactNode
 }
 
-export const KeypadContext = createContext<keyPadLayout | undefined>(undefined);
+type keypadInterface_T = { layout: keyPadLayout, onClick: (keyName: string) => void } | undefined;
 
-export default function Keypad({ layout, onClick }: buttonProps) {
+export const KeypadContext = createContext<Dispatch<SetStateAction<keypadInterface_T>> | undefined>(undefined);
+
+export default function Keypad({ children }: buttonProps) {
+
+   const [pad, setPad] = useState<keypadInterface_T>();
 
    const handleKeyPress = useCallback((e: KeyboardEvent) => {
-      const key = layout.flat().find((i) => i?.keyPress?.toString() === e.key)
+      const key = pad?.layout?.flat().find((i) => i?.keyPress?.toString() === e.key)
       if (key)
-         onClick(key.name.toString());
-   }, [onClick, layout])
+         pad?.onClick(key.name.toString());
+   }, [pad])
 
    useEffect(() => {
       document.addEventListener('keydown', handleKeyPress)
@@ -35,10 +38,15 @@ export default function Keypad({ layout, onClick }: buttonProps) {
    }, [handleKeyPress]);
 
    return (
-      <div className="flex flex-col gap-1.5 mt-2">
-         {layout.map((row, i) => <div className="flex gap-1.5" key={i}>
-            {row.map(b => <KeypadButton name={b.name.toString()} key={b.name} onClick={() => onClick(b.name.toString())} style={b.style} />)}
-         </div>)}
-      </div>
+      <KeypadContext value={setPad}>
+         <div className="flex flex-col flex-1 min-h-0">
+            {children}
+            <div className="flex flex-col gap-1.5 mt-2">
+               {pad?.layout?.map((row, i) => <div className="flex gap-1.5" key={i}>
+                  {row.map(b => <KeypadButton name={b.name.toString()} key={b.name} onClick={() => pad?.onClick(b.name.toString())} style={b.style} />)}
+               </div>)}
+            </div>
+         </div>
+      </KeypadContext>
    )
 }

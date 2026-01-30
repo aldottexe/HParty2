@@ -14,7 +14,6 @@ type PopupItem = {
 }
 
 interface popupInterface {
-   PopupViewer: () => ReactNode,
    enqueuePopup: (arg0: ReactNode, opts?: popupItemOptions) => () => void,
    blocking: boolean
 }
@@ -23,25 +22,6 @@ export const PopupManagerContext = createContext<popupInterface | undefined>(und
 
 export default function PopupManager({ children }: { children: ReactNode }) {
    const [popups, setPopups] = useState<PopupItem[]>([]);
-
-   function PopupViewer() {
-      if (popups[0])
-         if (popups[0].options?.exitOnBackgroundClick)
-            return (
-               <Popup onBackgroundClick={() =>
-                  setPopups(p => p.splice(1))
-               }>
-                  {popups[0].node}
-               </Popup>
-            )
-         else
-            return (
-               <Popup>
-                  {popups[0].node}
-               </Popup>
-            )
-      return <></>
-   }
 
    function enqueuePopup(node: ReactNode, opts?: popupItemOptions) {
       const id = crypto.randomUUID();
@@ -54,12 +34,28 @@ export default function PopupManager({ children }: { children: ReactNode }) {
    }
 
    const pi: popupInterface = {
-      PopupViewer,
       enqueuePopup,
       blocking: popups[0]?.options?.blocking ?? false
    }
    return (
       <PopupManagerContext value={pi}>
+
+         {popups[0] ?
+            popups[0].options?.exitOnBackgroundClick ? (
+               <Popup onBackgroundClick={() =>
+                  setPopups(p => p.splice(1))
+               }>
+                  {popups[0].node}
+               </Popup>
+            ) : (
+               <Popup>
+                  {popups[0].node}
+               </Popup>
+            ) : (
+               <></>
+            )
+         }
+
          {children}
       </PopupManagerContext>
    )

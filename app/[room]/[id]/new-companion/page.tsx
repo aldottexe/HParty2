@@ -1,12 +1,11 @@
 "use client"
 
 import Field from "@/lib/Field";
-import Keypad, { keyPadLayout } from "@/lib/Keypad";
-import Screen from "@/lib/Screen";
+import { KeypadContext, keyPadLayout } from "@/lib/Keypad";
 import StatusBar from "@/lib/StatusBar";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
-import { use, useState } from "react"
+import { use, useCallback, useContext, useEffect, useState } from "react"
 
 const keyLayout: keyPadLayout = [
    [
@@ -29,18 +28,10 @@ export default function NewCompanion({ params }: p) {
    const [name, setName] = useState("");
    const [maxhp, setMaxhp] = useState(0);
 
-   function handleClick(val: string) {
-      switch (val) {
-         case "BACK":
-            router.push(`/${room}/${id}`);
-            break;
-         case "CONFIRM":
-            submitNewChar();
-            break;
-      }
-   }
+   const keyPad = useContext(KeypadContext);
 
-   async function submitNewChar() {
+
+   const submitNewChar = useCallback(async () => {
       if (isNaN(maxhp) || maxhp < 1 || name === "") return;
       const c = {
          name: name,
@@ -55,23 +46,37 @@ export default function NewCompanion({ params }: p) {
       else {
          router.push(`/${room}/${id}?companion=${data.id}`)
       }
-   }
+   }, [id, maxhp, name, room, router]);
+
+   const handleClick = useCallback((val: string) => {
+      switch (val) {
+         case "BACK":
+            router.push(`/${room}/${id}`);
+            break;
+         case "CONFIRM":
+            submitNewChar();
+            break;
+      }
+   }, [id, room, router, submitNewChar]);
+
+   useEffect(() => {
+      if (keyPad)
+         keyPad({
+            layout: keyLayout,
+            onClick: handleClick,
+         })
+   }, [handleClick, keyPad]);
 
    return (
-      <div className="flex flex-col flex-1">
-         <Screen>
-            <div className="flex flex-col h-full">
-               <StatusBar roomNum={room} onLeave={() => { router.push('/') }} />
-               <div className="flex flex-col gap-10 flex-1 justify-center">
-                  <h1 className="text-2xl text-g1 underline font-bold">
-                     New Character
-                  </h1>
-                  <Field id="charName" label="Name" type="text" value={name} setValue={setName} />
-                  <Field id="charName" label="Max HP" type="number" value={maxhp} setValue={setMaxhp} />
-               </div>
-            </div>
-         </Screen>
-         <Keypad layout={keyLayout} onClick={handleClick} />
+      <div className="flex flex-col h-full">
+         <StatusBar roomNum={room} onLeave={() => { router.push('/') }} />
+         <div className="flex flex-col gap-10 flex-1 justify-center">
+            <h1 className="text-2xl text-g1 underline font-bold">
+               New Character
+            </h1>
+            <Field id="charName" label="Name" type="text" value={name} setValue={setName} />
+            <Field id="charName" label="Max HP" type="number" value={maxhp} setValue={setMaxhp} />
+         </div>
       </div>
    )
 }
