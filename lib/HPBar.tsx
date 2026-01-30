@@ -13,6 +13,7 @@ type p = {
    max: number
    temp: number
    companions?: char[]
+   emphasize?: boolean
 }
 
 function HPBarW(c: char) {
@@ -22,12 +23,12 @@ function tempBarW(c: char) {
    return Math.round(((c.current + c.temp) / Math.max(c.current + c.temp, c.max)) * 100)
 }
 
-export default function HPBar({ name, current, max, temp, companions }: p) {
+export default function HPBar({ name, current, max, temp, companions, emphasize }: p) {
    const mainChar = { name: name, current: current, max: max, temp: temp };
    return (
       <div className="relative">
          <div className="flex justify-between text-g1">
-            <span>{name}</span>
+            <span>{name}{emphasize ? <span className="text-blue">*</span> : ""}</span>
             <span>{current} / {max}{temp > 0 && ` ( +${temp} )`} </span>
          </div>
          <div className="w-full h-5 relative bg-g5 rounded-3xl">
@@ -67,11 +68,15 @@ function CompanionSelector({ selectedID, companionList, onCharSelect, onCharScee
          <div className="flex gap-2 items-center pb-1 relative top-1">
             <div className="flex gap-4 flex-1 justify-around overflow-x-scroll no-scrollbar pb-2">
                {companionList
-                  .sort((a, b) => a.name.localeCompare(b.name))
-                  .map((c) => {
+                  .sort((a, b) => {
+                     if (a.parent == null) return -1;
+                     if (b.parent == null) return 1;
+                     return a.name.localeCompare(b.name)
+                  })
+                  .map((c, i) => {
                      if (selectedID == c.id) {
                         return (
-                           <button key={c.name} className="text-blue transition-colors min-w-max">{c.name}</button>
+                           <button key={c.name} className="text-blue transition-colors min-w-max ">{c.name}</button>
                         )
                      } else {
                         return (

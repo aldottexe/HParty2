@@ -68,10 +68,14 @@ export default function Companions({ params }: p) {
                Companions
             </h1>
             <p className="text-2xl text-g1">
-               2
+               {companions.length || ""}
             </p>
          </div>
-         <HPListClickable charData={companions} onClick={(i) => router.push(`/${room}/${id}${cameFromResources && "/resources"}?companion=${i}`)} />
+         <HPListClickable
+            charData={companions}
+            onClick={(i) => router.push(`/${room}/${id}${cameFromResources && "/resources"}?companion=${i}`)}
+            mainCharID={parseInt(id)}
+         />
       </div>
    );
 }
