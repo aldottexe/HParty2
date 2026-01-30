@@ -31,13 +31,13 @@ export default function Companions({ params }: p) {
    const handleClick = useCallback((val: string) => {
       switch (val) {
          case "BACK":
-            router.push('/');
+            router.push(`/${room}/${id}${cameFromResources ? "/resources" : ""}`);
             break;
          case "ADD NEW":
             router.push(`/${room}/${id}/new-companion`);
             break;
       }
-   }, [router, id, room]);
+   }, [router, id, room, cameFromResources]);
 
    const setKeys = useContext(KeypadContext);
    useEffect(() => {
