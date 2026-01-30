@@ -8,7 +8,7 @@ type PopupProps = {
 export default function Popup({ children, onBackgroundClick }: PopupProps) {
    return (
       <div
-         className="absolute inset-0 flex justify-center items-center z-50"
+         className="absolute inset-0 flex justify-center items-center z-50 drop-shadow-[5px_5px_var(--color-g1)]"
          onClick={onBackgroundClick}
       >
          <div
