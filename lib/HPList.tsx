@@ -63,7 +63,14 @@ export function HPListClickable({ charData, onClick, mainCharID }: hlcp) {
             .map((c) =>
                <button onClick={() => onClick(c.id)}
                   key={c.id}
-                  className="hover:before:border-blue before:border-transparent hover:before:border-3 before:bg-w before:transition-colors before:inset-[-10] before:rounded-xl content:['_'] before:absolute relative rounded-xl before:z-[0] hover:scale-102 transition-all hover:z-3"
+                  className="
+               relative rounded-xl p-1
+               before:absolute before:inset-0 before:rounded-xl
+               before:bg-[repeating-conic-gradient(transparent_0deg_90deg,var(--g5)_90deg_180deg)]
+               before:bg-[length:5px_5px] before:bg-repeat
+               before:opacity-0 hover:before:opacity-100
+               before:transition-opacity
+               "
                >
                   <HPBar
                      name={c.name}
@@ -86,7 +93,14 @@ export function ResListClickable({ resData, onClick }: { resData: Tables<'Resour
          {resData.map((r) =>
             <button onClick={() => onClick(r.id)}
                key={r.id}
-               className="hover:before:border-blue before:border-transparent hover:before:border-3 before:bg-w before:transition-colors before:inset-[-10] before:rounded-xl content:['_'] before:absolute relative rounded-xl before:z-[0] hover:scale-102 transition-all hover:z-3"
+               className="
+               relative rounded-xl p-1
+               before:absolute before:inset-0 before:rounded-xl
+               before:bg-[repeating-conic-gradient(transparent_0deg_90deg,var(--g5)_90deg_180deg)]
+               before:bg-[length:5px_5px] before:bg-repeat
+               before:opacity-0 hover:before:opacity-100
+               before:transition-opacity
+               "
             >
                <HPBar
                   name={r.name}

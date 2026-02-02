@@ -27,7 +27,7 @@ export default function HPBar({ name, current, max, temp, companions, emphasize 
    const mainChar = { name: name, current: current, max: max, temp: temp };
    return (
       <div className="relative">
-         <div className="flex justify-between text-g1">
+         <div className="flex justify-between text-g1 mx-1">
             <span>{name}{emphasize ? <span className="text-blue">*</span> : ""}</span>
             <span>{current} / {max}{temp > 0 && ` ( +${temp} )`} </span>
          </div>

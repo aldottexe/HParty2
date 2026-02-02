@@ -133,24 +133,24 @@ export default function Resources({ params }: p) {
    }
 
    return (
-      <div className="flex flex-col min-h-0 flex-1">
-         <div className="flex flex-col min-h-0 flex-1 gap-5">
-            <StatusBar
-               roomNum={room}
-               synced={resSynced && charSynced}
-               charName={mainCharName}
-               onLeave={() => { router.push('/') }}
-            />
-            <PlayerBar
-               selectedID={selectedCompanionID}
-               charList={meAndCompanions}
-               onCharSelect={setSelectedCompanionID}
-               onAddChar={() => { router.push(`/${room}/${id}/new-companion`) }}
-               onCharScreen={() => { router.push(`/${room}/${id}/companions?from-resources=true`) }}
-            />
-            <div>
-               <button className="bg-blue text-w rounded-lg px-2">Concentrate</button>
-            </div>
+      <div className="flex flex-col min-h-0 flex-1 gap-5 h-full">
+         <StatusBar
+            roomNum={room}
+            synced={resSynced && charSynced}
+            charName={mainCharName}
+            onLeave={() => { router.push('/') }}
+         />
+         <PlayerBar
+            selectedID={selectedCompanionID}
+            charList={meAndCompanions}
+            onCharSelect={setSelectedCompanionID}
+            onAddChar={() => { router.push(`/${room}/${id}/new-companion`) }}
+            onCharScreen={() => { router.push(`/${room}/${id}/companions?from-resources=true`) }}
+         />
+         <div>
+            <button className="bg-blue text-w rounded-lg px-2">Concentrate</button>
+         </div>
+         <div className="flex flex-col flex-1 min-h-0 overflow-y-scroll overflow-x-visible">
             <ResListClickable resData={resData} onClick={edit} />
          </div>
       </div>
