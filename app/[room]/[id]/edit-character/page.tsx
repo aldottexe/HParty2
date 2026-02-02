@@ -71,19 +71,21 @@ export default function NewChracter({ params }: p) {
                Delete {name}?
             </h2>
             <div className="flex gap-2">
-               <button onClick={() => { close?.call({}) }} className="bg-g5 px-2 rounded-xl block w-full h-8 hover:bg-g4 transition-colors">cancel</button>
-               <button className="text-dred bg-g5 block w-full rounded-xl h-8 hover:bg-g4 transition-colors" onClick={async () => {
-                  const { error } = await supabase.from('Character').delete().eq('id', parseInt(id))
-                  if (error) {
-                     console.error(error);
-                     return;
+               <button onClick={() => { close?.call({}) }} className="bg-g5 px-2 rounded-xl block w-full h-8 hover:bg-g4 transition-colors min-w-30">cancel</button>
+               <button className="text-dred bg-g5 block w-full rounded-xl h-8 hover:bg-g4 transition-colors min-w-30" onClick={
+                  async () => {
+                     const { error } = await supabase.from('Character').delete().eq('id', parseInt(id))
+                     if (error) {
+                        console.error(error);
+                        return;
+                     }
+                     close?.call({});
+                     if (parent) {
+                        router.push(`/${room}/${parent}`)
+                     } else
+                        router.push(`/`)
                   }
-                  close?.call({});
-                  if (parent) {
-                     router.push(`/${room}/${parent}`)
-                  } else
-                     router.push(`/`)
-               }}>delete</button>
+               }>delete</button>
             </div>
          </div >
       )
