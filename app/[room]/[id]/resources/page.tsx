@@ -44,15 +44,15 @@ function Editor({ selected, onEdit }: { selected: Tables<'Resource'>, onEdit: (i
          <p>{selected.desc}</p>
          <div className="flex text-w gap-2">
             <button
-               className="bg-blue w-full hover:bg-dblue transition-colors rounded-lg"
+               className="bg-blue w-full hover:bg-dblue transition-colors rounded-xl"
                onClick={dec}
             >-</button>
             <button
-               className="bg-blue w-full hover:bg-dblue transition-colors rounded-lg"
+               className="bg-blue w-full hover:bg-dblue transition-colors rounded-xl"
                onClick={inc}
             >+</button>
             <button
-               className="bg-blue hover:bg-dblue transition-colors rounded-lg px-3"
+               className="bg-blue hover:bg-dblue transition-colors rounded-xl px-3"
                onClick={() => onEdit(selected.id)}
             >...</button>
          </div>

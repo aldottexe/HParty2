@@ -67,22 +67,24 @@ export default function NewChracter({ params }: p) {
    function deleteRes() {
       const close = popupManager?.enqueuePopup(
          <div>
-            <h2 className="font-bold text-2xl underline mb-5 pr-20">
+            <h2 className="font-bold text-2xl mb-3 pr-20">
                Delete {name}?
             </h2>
-            <button className="text-dred bg-g5 block w-full rounded-lg h-8 mb-2 hover:bg-g4 transition-colors" onClick={async () => {
-               const { error } = await supabase.from('Character').delete().eq('id', parseInt(id))
-               if (error) {
-                  console.error(error);
-                  return;
-               }
-               close?.call({});
-               if (parent) {
-                  router.push(`/${room}/${parent}`)
-               } else
-                  router.push(`/`)
-            }}>delete</button>
-            <button onClick={() => { close?.call({}) }} className="bg-g5 px-2 rounded-lg block w-full h-8 hover:bg-g4 transition-colors">cancel</button>
+            <div className="flex gap-2">
+               <button onClick={() => { close?.call({}) }} className="bg-g5 px-2 rounded-xl block w-full h-8 hover:bg-g4 transition-colors">cancel</button>
+               <button className="text-dred bg-g5 block w-full rounded-xl h-8 hover:bg-g4 transition-colors" onClick={async () => {
+                  const { error } = await supabase.from('Character').delete().eq('id', parseInt(id))
+                  if (error) {
+                     console.error(error);
+                     return;
+                  }
+                  close?.call({});
+                  if (parent) {
+                     router.push(`/${room}/${parent}`)
+                  } else
+                     router.push(`/`)
+               }}>delete</button>
+            </div>
          </div >
       )
    }
