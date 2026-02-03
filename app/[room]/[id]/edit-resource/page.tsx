@@ -53,11 +53,24 @@ export default function EditResource({ params }: p) {
                Delete {name}?
             </h2>
             <div className="flex gap-2">
-               <button onClick={() => { close?.call({}) }} className="bg-g5 px-2 rounded-xl block w-full h-8 hover:bg-g4 transition-colors min-w-30">cancel</button>
-               <button className="text-dred bg-g5 block w-full rounded-xl h-8 hover:bg-g4 transition-colors min-w-30" onClick={async () => {
-                  await supabase.from('Resource').delete().eq('id', parseInt(id))
-                  router.push('/')
-               }}>delete</button>
+               <button
+                  onClick={() => { close?.call({}) }}
+                  className="bg-g5 px-2 rounded-xl block w-full h-8 hover:bg-g4 transition-colors min-w-30"
+               >
+                  cancel
+               </button>
+               <button
+                  className="text-dred bg-g5 block w-full rounded-xl h-8 hover:bg-g4 transition-colors min-w-30"
+                  onClick={
+                     async () => {
+                        await supabase.from('Resource').delete().eq('id', parseInt(id));
+                        close?.call({});
+                        router.push('/');
+                     }
+                  }
+               >
+                  delete
+               </button>
             </div>
          </div >
       )
