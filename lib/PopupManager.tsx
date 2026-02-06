@@ -1,5 +1,7 @@
 "use client"
-import { createContext, ReactNode, useState } from "react";
+
+// POPUP MANAGER.tsx
+import { createContext, ReactNode, useEffect, useState } from "react";
 import Popup from "./Popup";
 
 
@@ -14,7 +16,7 @@ type PopupItem = {
 }
 
 interface popupInterface {
-   enqueuePopup: (arg0: ReactNode, opts?: popupItemOptions) => () => void,
+   enqueuePopup: (arg0: ReactNode | ((close: () => void) => ReactNode), opts?: popupItemOptions) => () => void,
    blocking: boolean
 }
 
@@ -23,14 +25,16 @@ export const PopupManagerContext = createContext<popupInterface | undefined>(und
 export default function PopupManager({ children }: { children: ReactNode }) {
    const [popups, setPopups] = useState<PopupItem[]>([]);
 
-   function enqueuePopup(node: ReactNode, opts?: popupItemOptions) {
+   function enqueuePopup(node: ReactNode | ((close: () => void) => ReactNode), opts?: popupItemOptions) {
       const id = crypto.randomUUID();
-
-      setPopups(p => [...p, { id: id, node: node, options: opts }]);
-
-      return () => {
-         setPopups(p => p.filter(x => x.id !== id))
+      const close = () => {
+         setPopups(p => p.filter(x => x.id !== id));
       }
+
+      const resolvedNode = typeof node === "function" ? node(close) : node;
+
+      setPopups(p => [...p, { id: id, node: resolvedNode, options: opts }]);
+      return close;
    }
 
    const pi: popupInterface = {
@@ -43,7 +47,7 @@ export default function PopupManager({ children }: { children: ReactNode }) {
          {popups[0] ?
             popups[0].options?.exitOnBackgroundClick ? (
                <Popup onBackgroundClick={() =>
-                  setPopups(p => p.splice(1))
+                  setPopups(p => p.slice(1))
                }>
                   {popups[0].node}
                </Popup>

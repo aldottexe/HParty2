@@ -6,7 +6,7 @@ import { PopupManagerContext } from "@/lib/PopupManager";
 import StatusBar from "@/lib/StatusBar";
 import { useLiveCharData, useLiveResourceData } from "@/lib/useLiveData";
 import { useRouter, useSearchParams } from "next/navigation";
-import { use, useContext, useEffect, useState } from "react";
+import { use, useCallback, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Tables } from "@/database.types";
 import { KeypadContext, keyPadLayout } from "@/lib/Keypad";
@@ -32,6 +32,7 @@ function Editor({ selected, onEdit }: { selected: Tables<'Resource'>, onEdit: (i
       }
       setCurrentHP(c => c - 1)
    }
+
 
    return (
       <div className="flex flex-col gap-2 w-80">
@@ -79,6 +80,7 @@ interface p {
       id: string;
    }>
 }
+
 export default function Resources({ params }: p) {
    const router = useRouter();
    const { room, id } = use(params);
@@ -86,7 +88,7 @@ export default function Resources({ params }: p) {
    const { charData, synced: charSynced } = useLiveCharData(parseInt(room));
 
    const meAndCompanions = charData.filter((c) => c.id === parseInt(id) || c.parent === parseInt(id));
-   const mainCharName = charData.find(c => c.id.toString() === id)?.name;
+   const mainChar = charData.find(c => c.id.toString() === id);
 
    const searchParams = useSearchParams();
    const initialSelectedCompanionID = parseInt(searchParams.get("companion") || id);
@@ -132,12 +134,22 @@ export default function Resources({ params }: p) {
          )
    }
 
+   async function toggleConcentration() {
+      if (mainChar) {
+         mainChar.concentrating = !mainChar.concentrating;
+         const { error } = await supabase.from('Character').update({ 'concentrating': mainChar.concentrating }).eq('id', mainChar.id);
+         if (error) {
+            console.error(error);
+         }
+      }
+   };
+
    return (
       <div className="flex flex-col min-h-0 flex-1 gap-5 h-full">
          <StatusBar
             roomNum={room}
             synced={resSynced && charSynced}
-            charName={mainCharName}
+            charName={mainChar?.name}
             onLeave={() => { router.push('/') }}
          />
          <PlayerBar
@@ -146,9 +158,15 @@ export default function Resources({ params }: p) {
             onCharSelect={setSelectedCompanionID}
             onAddChar={() => { router.push(`/${room}/${id}/new-companion`) }}
             onCharScreen={() => { router.push(`/${room}/${id}/companions?from-resources=true`) }}
+            concentrating={mainChar?.concentrating}
          />
          <div>
-            <button className="bg-blue text-w rounded-lg px-2">Concentrate</button>
+            <button
+               className="bg-blue text-w rounded-lg px-2 hover:bg-dblue"
+               onClick={toggleConcentration}
+            >
+               {mainChar?.concentrating ? "Concentrating..." : "Concentrate"}
+            </button>
          </div>
          <div className="flex flex-col flex-1 min-h-0 overflow-y-scroll overflow-x-visible">
             <ResListClickable resData={resData} onClick={edit} />

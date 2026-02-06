@@ -4,11 +4,12 @@ import { PlayerBar } from "@/lib/HPBar";
 import HPList from "@/lib/HPList";
 import Popup from "@/lib/Popup";
 import { useLiveCharData } from "@/lib/useLiveData";
-import { use, useContext, useEffect, useState, useCallback } from "react";
+import { use, useContext, useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import StatusBar from "@/lib/StatusBar";
 import { useRouter, useSearchParams } from "next/navigation";
 import { KeypadContext } from "@/lib/Keypad";
+import { PopupManagerContext } from "@/lib/PopupManager";
 
 interface p {
    params: Promise<{
@@ -47,11 +48,41 @@ const keys = [
       { name: 'DMG', keyPress: 'd', style: 'h-12 text-red bg-g2 border-g3 hover:bg-g3' },
       { name: 'HEAL', keyPress: 'h', style: 'h-12 text-green bg-g2 border-g3 hover:bg-g3' },
    ],
-]
+];
+
+function ConcentrationPopup({ damageTaken, id, onClose }: { damageTaken: number, id: number, onClose?: (failed: boolean) => void }) {
+   const dc = Math.max(10, Math.floor(damageTaken / 2));
+   return (
+      <div>
+         <h2 className="font-bold text-2xl pr-20">
+            Concentration Check
+         </h2>
+         <p className="mb-2">
+            DC: {dc}
+         </p>
+         <div className="flex gap-2">
+            <button
+               onClick={() => onClose?.(true)}
+               className="bg-g5 px-2 rounded-xl block w-full h-8 hover:bg-g4 transition-colors min-w-30"
+            >
+               Fail
+            </button>
+            <button
+               className="bg-blue block w-full rounded-xl h-8 hover:bg-dblue transition-colors min-w-30 text-w"
+               onClick={() => { onClose?.(false) }}
+            >
+               Pass
+            </button>
+         </div>
+      </div >
+   )
+}
+
 
 export default function HPTracker({ params }: p) {
    const { room, id } = use(params);
    const { charData, synced } = useLiveCharData(parseInt(room));
+   const popupManager = useContext(PopupManagerContext);
 
    const searchParams = useSearchParams();
    const initialSelectedCompanionID = parseInt(searchParams.get("companion") || id);
@@ -59,9 +90,9 @@ export default function HPTracker({ params }: p) {
    const [selectedCompanionID, setSelectedCompanionID] = useState(initialSelectedCompanionID);
    const [workingVal, setWorkingVal] = useState(0);
 
-
    const setKeypad = useContext(KeypadContext);
 
+   const mainCompanionData = charData.find((c) => c.id == parseInt(id));
    const selectedCompanionData = charData.find((c) => c.id == selectedCompanionID);
    const others = charData.filter((c) => c.id !== parseInt(id));
    const meAndCompanions = charData.filter((c) => c.id === parseInt(id) || c.parent === parseInt(id));
@@ -80,13 +111,37 @@ export default function HPTracker({ params }: p) {
       await supabase.from('Character').update({ current_hp: newHp }).eq('id', selectedCompanionID);
    }, [selectedCompanionData, selectedCompanionID]);
 
+
+
+   const popupShown = useRef(false);
    const damage = useCallback(async (ammt: number): Promise<void> => {
       if (ammt <= 0) return;
       if (!selectedCompanionData) return;
+
       const newTemp = Math.max(0, selectedCompanionData.temp_hp - ammt);
       const newHp = Math.max(0, selectedCompanionData.current_hp - Math.max(0, ammt - selectedCompanionData.temp_hp));
+
+
+      if (mainCompanionData?.concentrating && !popupShown.current) {
+         popupShown.current = true;
+         popupManager?.enqueuePopup((close: () => void) => (
+            <ConcentrationPopup
+               damageTaken={ammt}
+               id={parseInt(id)}
+               onClose={async (failed: boolean) => {
+                  close();
+                  popupShown.current = false;
+                  if (failed) {
+                     const { error } = await supabase.from('Character').update({ concentrating: false }).eq('id', parseInt(id));
+                     if (error) console.error(error);
+                  }
+               }}
+            />
+         ))
+      }
+
       await supabase.from('Character').update({ current_hp: newHp, temp_hp: newTemp }).eq('id', selectedCompanionID);
-   }, [selectedCompanionData, selectedCompanionID]);
+   }, [selectedCompanionData, selectedCompanionID, mainCompanionData, popupManager, id]);
 
    const temp = useCallback(async (ammt: number): Promise<void> => {
       if (!selectedCompanionData) return;
@@ -148,7 +203,9 @@ export default function HPTracker({ params }: p) {
             charList={meAndCompanions}
             onCharSelect={charSelect}
             onCharScreen={() => { router.push(`/${room}/${id}/companions`) }}
-            onAddChar={() => { router.push(`/${room}/${id}/new-companion`) }} />
+            onAddChar={() => { router.push(`/${room}/${id}/new-companion`) }}
+            concentrating={mainCompanionData?.concentrating}
+         />
       </div>
    </div>
 }

@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       Character: {
         Row: {
+          concentrating: boolean
           created_at: string
           current_hp: number
           id: number
@@ -26,6 +27,7 @@ export type Database = {
           temp_hp: number
         }
         Insert: {
+          concentrating?: boolean
           created_at?: string
           current_hp: number
           id?: number
@@ -36,6 +38,7 @@ export type Database = {
           temp_hp: number
         }
         Update: {
+          concentrating?: boolean
           created_at?: string
           current_hp?: number
           id?: number

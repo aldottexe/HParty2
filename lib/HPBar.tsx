@@ -53,6 +53,36 @@ function CompanionHPBar({ c }: { c: char }) {
    );
 }
 
+function ConcentrationMarker({ concentrating }: { concentrating: boolean }) {
+   if (concentrating)
+      return (
+         <span
+            className="
+            relative 
+            text-w 
+            font-bold 
+            text-md
+            before:absolute 
+            before:aspect-square 
+            before:inset-0 
+            before:bg-blue
+            before:rotate-45
+            before:w-5.5
+            before:rounded-md
+            before:left-[3px]
+            before:top-[5px]
+            before:z-[-1]
+            z-5
+            px-2
+            inline-flex
+            content-center
+            items-center
+            mx-1
+            "
+         >C</span>
+      )
+}
+
 
 interface CompanionSelectorProps {
    companionList: Tables<'Character'>[];
@@ -112,9 +142,10 @@ interface playerBarProps {
    onCharSelect: (id: number) => void;
    onCharScreen: () => void;
    onAddChar: () => void;
+   concentrating?: boolean;
 }
 
-export function PlayerBar({ selectedID, charList, onCharSelect, onCharScreen, onAddChar }: playerBarProps) {
+export function PlayerBar({ selectedID, charList, onCharSelect, onCharScreen, onAddChar, concentrating }: playerBarProps) {
    const selectedChar = charList.find(c => c.id == selectedID);
 
    const selectedCharInfoAsChar: char | undefined = selectedChar ? {
@@ -128,9 +159,12 @@ export function PlayerBar({ selectedID, charList, onCharSelect, onCharScreen, on
       <div>
          <div className="flex justify-between mb-1">
             <h2 className="text-g1 font-bold text-2xl">{selectedChar?.name ?? "character"}</h2>
-            <p className="text-2xl text-g1">
-               {selectedChar?.current_hp} / {selectedChar?.max_hp}{(selectedChar?.temp_hp ?? 0) > 0 && ` (+${selectedChar?.temp_hp})`}
-            </p>
+            <div className="flex">
+               <ConcentrationMarker concentrating={concentrating ?? false} />
+               <p className="text-2xl text-g1">
+                  {selectedChar?.current_hp} / {selectedChar?.max_hp}{(selectedChar?.temp_hp ?? 0) > 0 && ` (+${selectedChar?.temp_hp})`}
+               </p>
+            </div>
          </div>
          <div className="bg-g5 h-9 rounded-xl relative mb-2">
             <div className="rounded-xl h-9 bg z-10 bg-g4 absolute transition-all duration-500"
