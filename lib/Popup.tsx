@@ -12,7 +12,7 @@ export default function Popup({ children, onBackgroundClick }: PopupProps) {
          onClick={onBackgroundClick}
       >
          <div
-            className="border-blue border-5 bg-w rounded-3xl p-3"
+            className="border-blue border-5 bg-w rounded-3xl p-3 max-w-[90%]"
             onClick={(e) => e.stopPropagation()}
          >
             {children}

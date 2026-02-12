@@ -35,7 +35,7 @@ function Editor({ selected, onEdit }: { selected: Tables<'Resource'>, onEdit: (i
 
 
    return (
-      <div className="flex flex-col gap-2 w-80">
+      <div className="flex flex-col gap-2 w-80 max-w-full">
          <HPBar
             name={<b>{selected.name}</b>}
             current={currentHP}
@@ -43,7 +43,7 @@ function Editor({ selected, onEdit }: { selected: Tables<'Resource'>, onEdit: (i
             temp={0}
          />
          <p>{selected.desc}</p>
-         <div className="flex text-w gap-2">
+         <div className="flex text-w gap-2 w-full">
             <button
                className="bg-blue w-full hover:bg-dblue transition-colors rounded-xl"
                onClick={dec}
