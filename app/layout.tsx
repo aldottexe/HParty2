@@ -4,11 +4,15 @@ import Link from "next/link";
 import PopupManager from "@/lib/PopupManager";
 import Keypad from "@/lib/Keypad";
 import Screen from "@/lib/Screen";
+import { IBM_Plex_Mono, Libre_Baskerville } from "next/font/google";
+
+const ipm = IBM_Plex_Mono({ weight: ["100", "200", "300", "400", "500", "700"] });
 
 export const metadata: Metadata = {
    title: "HParty2!",
    description: "track your health and such",
 };
+
 
 export default function RootLayout({
    children,
@@ -16,7 +20,7 @@ export default function RootLayout({
    children: React.ReactNode;
 }>) {
    return (
-      <html lang="en">
+      <html lang="en" className={ipm.className}>
          <body
             className={`antialiased max-w-150 mx-auto box-border p-0 m-0`}
          >

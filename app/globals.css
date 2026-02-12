@@ -65,6 +65,6 @@
 body {
    background: var(--g1);
    color: var(--w);
-   font-family: var(--font-mono), monospace;
+   font-family: "IBM Plex Mono";
    scrollbar-color: var(--color-blue) var(--color-w);
 }

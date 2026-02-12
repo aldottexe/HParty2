@@ -29,7 +29,7 @@ export default function HPBar({ name, current, max, temp, companions, emphasize 
       <div className="relative">
          <div className="flex justify-between text-g1 mx-1">
             <span>{name}{emphasize ? <span className="text-blue">*</span> : ""}</span>
-            <span>{current} / {max}{temp > 0 && ` ( +${temp} )`} </span>
+            <span>{current}/{max}{temp > 0 && `( +${temp} )`} </span>
          </div>
          <div className="w-full h-5 relative bg-g5 rounded-3xl">
             <div className="bg-g4 rounded-3xl h-5 absolute z-10 transition-all duration-500" style={{ width: `${HPBarW(mainChar)}%` }}>
@@ -69,7 +69,7 @@ function ConcentrationMarker({ concentrating }: { concentrating: boolean }) {
             before:rotate-45
             before:w-5.5
             before:rounded-md
-            before:left-[3px]
+            before:left-[1.8px]
             before:top-[5px]
             before:z-[-1]
             z-5
@@ -162,7 +162,7 @@ export function PlayerBar({ selectedID, charList, onCharSelect, onCharScreen, on
             <div className="flex">
                <ConcentrationMarker concentrating={concentrating ?? false} />
                <p className="text-2xl text-g1">
-                  {selectedChar?.current_hp} / {selectedChar?.max_hp}{(selectedChar?.temp_hp ?? 0) > 0 && ` (+${selectedChar?.temp_hp})`}
+                  {selectedChar?.current_hp}/{selectedChar?.max_hp}{(selectedChar?.temp_hp ?? 0) > 0 && `(+${selectedChar?.temp_hp})`}
                </p>
             </div>
          </div>
