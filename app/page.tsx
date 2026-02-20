@@ -8,7 +8,7 @@ import StatusBar from "@/lib/StatusBar";
 import { KeypadContext } from "@/lib/Keypad";
 
 export default function Home() {
-   const [roomNum, setRoomNum] = useState<string>("");
+   const [roomNum, setRoomNum] = useState<string>("NaN");
    const { charData, synced } = useLiveCharData(parseInt(roomNum));
    const router = useRouter();
    const setKeys = useContext(KeypadContext);
